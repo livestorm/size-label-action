@@ -10,17 +10,24 @@
     "size-label-action": "index.js"
   },
   "scripts": {
-    "test": "node test.js",
-    "lint": "eslint ."
+    "test": "yarn compile && node test.js",
+    "lint": "eslint .",
+    "compile": "ncc build index.js --license LICENSE -o dist",
+    "prepublish": "yarn compile"
   },
   "dependencies": {
-    "@octokit/rest": "^16.30.0",
-    "diff": "^4.0.1",
+    "@octokit/rest": "^18.0.6",
+    "diff": "^4.0.2",
     "globrex": "^0.1.2"
   },
   "devDependencies": {
-    "dotenv": "^8.1.0",
-    "eslint": "^6.4.0",
-    "tmp": "^0.1.0"
+    "@vercel/ncc": "^0.26.2",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.12.0",
+    "tmp": "^0.2.1"
+  },
+  "prettier": {
+    "arrowParens": "avoid",
+    "trailingComma": "none"
   }
 }

@@ -16,9 +16,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: size-label
-        uses: "pascalgn/size-label-action@d909487e1a0057d85c638f1ddefdb315a63d2e98"
+        uses: "pascalgn/size-label-action@v0.4.2"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+```
+
+## Create the needed labels
+
+Export both `GITHUB_TOKEN` and `REPO` (e.g. `my-username/my-repository`) and run the script below:
+ 
+```bash
+for size in XL XXL XS S M L; do
+	curl -sf -H "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/kubernetes/kubernetes/labels/size/$size" |
+		jq '. | { "name": .name, "color": .color, "description": .description }' |
+		curl -sfXPOST -d @- -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$REPO/labels
+done
 ```
 
 ## Configuration
@@ -40,4 +52,4 @@ You can configure the environment variables in the workflow file like this:
 
 ## License
 
-MIT
+[MIT](LICENSE)

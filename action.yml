@@ -1,0 +1,8 @@
+name: "Assign size label"
+description: "Assign labels based on pull request change sizes"
+runs:
+  using: "node12"
+  main: "dist/index.js"
+branding:
+  icon: "tag"
+  color: "blue"

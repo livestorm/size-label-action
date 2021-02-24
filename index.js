@@ -3,7 +3,7 @@
 const fs = require("fs");
 const process = require("process");
 
-const Octokit = require("@octokit/rest");
+const { Octokit } = require("@octokit/rest");
 const globrex = require("globrex");
 const Diff = require("diff");
 
@@ -16,7 +16,7 @@ const sizes = {
   1000: "XXL"
 };
 
-const actions = ["opened", "synchronize"];
+const actions = ["opened", "synchronize", "reopened"];
 
 const globrexOptions = { extended: true, globstar: true };
 
@@ -36,7 +36,7 @@ async function main() {
   const eventDataStr = await readFile(GITHUB_EVENT_PATH);
   const eventData = JSON.parse(eventDataStr);
 
-  if (!eventData || !eventData.pull_request || !eventData.pull_request.head) {
+  if (!eventData || !eventData.pull_request || !eventData.pull_request.base) {
     throw new Error(`Invalid GITHUB_EVENT_PATH contents: ${eventDataStr}`);
   }
 
@@ -50,8 +50,8 @@ async function main() {
   const isIgnored = parseIgnored(process.env.IGNORED);
 
   const pullRequestHome = {
-    owner: eventData.pull_request.head.repo.owner.login,
-    repo: eventData.pull_request.head.repo.name
+    owner: eventData.pull_request.base.repo.owner.login,
+    repo: eventData.pull_request.base.repo.name
   };
 
   const pull_number = eventData.pull_request.number;
@@ -96,11 +96,15 @@ async function main() {
 
   for (const label of remove) {
     debug("Removing label:", label);
-    await octokit.issues.removeLabel({
-      ...pullRequestHome,
-      issue_number: pull_number,
-      name: label
-    });
+    try {
+      await octokit.issues.removeLabel({
+        ...pullRequestHome,
+        issue_number: pull_number,
+        name: label
+      });
+    } catch (error) {
+      debug("Ignoring removing label error:", error);
+    }
   }
 
   debug("Success!");
